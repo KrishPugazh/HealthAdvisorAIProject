@@ -5,33 +5,31 @@ const session = require('express-session');
 const MongoDBStore = require('connect-mongodb-session')(session);
 const bodyParser = require('body-parser');
 const cors = require('cors');
-require('dotenv').config(); // Load environment variables from .env file
+require('dotenv').config(); // Load environment variables
 
 const app = express();
 
-// CORS Configuration
+// Allowed origins
 const allowedOrigins = [
-  'http://localhost:5173', // Local frontend (development)
+  'http://localhost:5173', // Local frontend
+  'https://healthadvisoraiproject-2.onrender.com', // Production frontend URL
 ];
 
+// CORS Configuration
 const corsOptions = {
-    origin: 'https://healthadvisoraiproject-2.onrender.com', // Replace with your front-end URL
-    methods: ['GET', 'POST', 'PUT', 'DELETE'],
-    allowedHeaders: ['Content-Type', 'Authorization'],
+  origin: (origin, callback) => {
+    if (!origin || allowedOrigins.includes(origin)) {
+      callback(null, true); // Allow the origin
+    } else {
+      callback(new Error('CORS policy violation: Origin not allowed.'));
+    }
+  },
+  methods: ['GET', 'POST', 'PUT', 'DELETE'],
+  allowedHeaders: ['Content-Type', 'Authorization'],
+  credentials: true, // Enable cookies and session sharing
 };
 
-app.use(
-  cors({
-    origin: (origin, callback) => {
-      if (!origin || allowedOrigins.includes(origin)) {
-        callback(null, true);
-      } else {
-        callback(new Error('CORS policy violation: origin not allowed.'));
-      }
-    },
-    credentials: true, // Allow cookies/session data
-  })
-);
+app.use(cors(corsOptions));
 
 // Middleware
 app.use(bodyParser.json());
@@ -47,7 +45,7 @@ if (!MONGO_URI) {
 
 mongoose
   .connect(MONGO_URI, { useNewUrlParser: true, useUnifiedTopology: true })
-  .then(() => console.log('MongoDB connected to Atlas'))
+  .then(() => console.log('MongoDB connected successfully!'))
   .catch((err) => {
     console.error('Error connecting to MongoDB:', err);
     process.exit(1);
@@ -111,8 +109,8 @@ const Contact = mongoose.model('Contact', ContactSchema);
 // User Registration
 app.post('/register', async (req, res) => {
   const { username, email, password } = req.body;
-  console.log(username,email,password);
-  
+  console.log(username, email, password);
+
   try {
     const existingUser = await User.findOne({ email });
     if (existingUser) return res.status(400).send('User already exists.');
@@ -140,7 +138,6 @@ app.post('/login', async (req, res) => {
     const isMatch = await bcrypt.compare(password, user.password);
     if (!isMatch) return res.status(400).send('Invalid email or password.');
 
-    // Regenerate session to prevent session fixation attacks
     req.session.regenerate((err) => {
       if (err) return res.status(500).send('Error logging in.');
 
