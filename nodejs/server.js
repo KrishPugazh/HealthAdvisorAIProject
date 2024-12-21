@@ -14,6 +14,12 @@ const allowedOrigins = [
   'http://localhost:5173', // Local frontend (development)
 ];
 
+const corsOptions = {
+    origin: 'https://healthadvisoraiproject-2.onrender.com', // Replace with your front-end URL
+    methods: ['GET', 'POST', 'PUT', 'DELETE'],
+    allowedHeaders: ['Content-Type', 'Authorization'],
+};
+
 app.use(
   cors({
     origin: (origin, callback) => {
