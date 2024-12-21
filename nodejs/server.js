@@ -11,24 +11,22 @@ const app = express();
 
 // CORS Configuration
 const allowedOrigins = [
-  'https://healthadvisoraiproject-2.onrender.com', // Add the frontend URL here
+  'http://localhost:5173', // Local frontend (development)
+ https://healthadvisoraiproject-2.onrender.com, // Deployed frontend
 ];
 
-const corsOptions = {
-    origin: function(origin, callback) {
-        if (!origin || allowedOrigins.includes(origin)) {
-            callback(null, true);
-        } else {
-            callback(new Error('CORS policy violation: origin not allowed.'));
-        }
+app.use(
+  cors({
+    origin: (origin, callback) => {
+      if (!origin || allowedOrigins.includes(origin)) {
+        callback(null, true);
+      } else {
+        callback(new Error('CORS policy violation: origin not allowed.'));
+      }
     },
-    methods: ['GET', 'POST', 'PUT', 'DELETE'],
-    allowedHeaders: ['Content-Type', 'Authorization'],
     credentials: true, // Allow cookies/session data
-};
-
-// Apply CORS middleware
-app.use(cors(corsOptions));
+  })
+);
 
 // Middleware
 app.use(bodyParser.json());
