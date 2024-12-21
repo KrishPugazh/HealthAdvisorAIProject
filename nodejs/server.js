@@ -12,7 +12,7 @@ const app = express();
 // CORS Configuration
 const allowedOrigins = [
   'http://localhost:5173', // Local frontend (development)
- https://healthadvisoraiproject-2.onrender.com, // Deployed frontend
+ 'https://healthadvisoraiproject-2.onrender.com', // Deployed frontend
 ];
 
 app.use(
